@@ -1,5 +1,6 @@
-/** @type {import('tailwindcss').Config} */
-export default {
+import type { Config } from 'tailwindcss';
+
+export default <Partial<Config>>{
   content: [
     `components/**/*.{vue,js,ts}`,
     `layouts/**/*.vue`,
@@ -11,11 +12,6 @@ export default {
     `app.{js,ts,vue}`,
     `Error.{js,ts,vue}`,
     `error.{js,ts,vue}`,
-    `app.config.{js,ts}`
+    `app.config.{js,ts}`,
   ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}
-
+};
