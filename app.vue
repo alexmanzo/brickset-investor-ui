@@ -7,10 +7,18 @@
 </template>
 
 <script setup lang="ts">
+import { useUserStore } from '@/stores/user';
+const user = useUserStore();
+
+if (!user.userHash) {
+  await callOnce(user.login);
+}
 const { data, pending, error, refresh } = await useFetch('/api/sets', {
-  query: { query: 'Medieval blacksmith', userHash: '' }
-})
+  query: { query: 'Medieval blacksmith', userHash: user.userHash },
+});
+
 console.log(data.value)
+
 const columns = [
   {
     key: 'id',

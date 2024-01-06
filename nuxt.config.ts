@@ -23,10 +23,18 @@ export default defineNuxtConfig({
     bricksetApiKey: '',
     bricksetApiUrl: 'https://brickset.com/api/v3.asmx',
     bricksetUsername: 'manzoalex17@gmail.com',
-    bricksetPassword: ''
+    bricksetPassword: '',
   },
   typescript: {
     typeCheck: true,
   },
-  modules: ['@nuxt/ui'],
+  modules: [
+    '@nuxt/ui',
+    [
+      '@pinia/nuxt',
+      {
+        autoImports: ['defineStore'],
+      },
+    ],
+  ],
 });
