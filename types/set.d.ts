@@ -1,41 +1,41 @@
-interface Set {
-  setID: number;
-  number: string;
-  numberVariant: number;
-  name: string;
-  year: number;
-  theme: string;
-  themeGroup: string;
-  subtheme: string;
-  category: string;
-  released: boolean;
-  pieces: number;
-  minifigs: number;
-  image: SetImage;
-  bricksetURL: string;
-  collection: Collection;
-  collections: Collections;
-  LEGOCom: LegoCom;
-  rating: Single;
-  reviewCount: number;
-  packagingType: string;
-  availability: string;
-  instructionsCount: number;
-  additionalImageCount: number;
-  ageRange: AgeRange;
-  dimensions:Dimensions;
-  barcode: Barcode;
-  extendedData: ExtendedData;
-  lastUpdated: DateTime;
+export interface Set {
+  setID?: number;
+  number?: string;
+  numberVariant?: number;
+  name?: string;
+  year?: number;
+  theme?: string;
+  themeGroup?: string;
+  subtheme?: string;
+  category?: string;
+  released?: boolean;
+  pieces?: number;
+  minifigs?: number;
+  image?: SetImage;
+  bricksetURL?: string;
+  collection?: Collection;
+  collections?: Collections;
+  LEGOCom?: LegoCom;
+  rating?: Single;
+  reviewCount?: number;
+  packagingType?: string;
+  availability?: string;
+  instructionsCount?: number;
+  additionalImageCount?: number;
+  ageRange?: AgeRange;
+  dimensions?:Dimensions;
+  barcode?: Barcode;
+  extendedData?: ExtendedData;
+  lastUpdated?: DateTime;
 
 }
 
-interface SetImage {
+export interface SetImage {
 thumbnailURL: string;
 imageURL: string;
 }
 
-interface LegoCom {
+export interface LegoCom {
 [key: LegoComCountry]: LegoComDetails;
 }
 
@@ -45,29 +45,29 @@ enum LegoComCountry {
 'CA' = 'CA',
 'DE' = 'DE',
 }
-interface LegoComDetails {
+export interface LegoComDetails {
 retailPrice: number;
 dateFirstAvavilable: string;
 dateLastAvailable: string;
 }
 
-interface AgeRange {
+export interface AgeRange {
 min: number;
 }
 
-interface Dimensions {
+export interface Dimensions {
 height: number;
 width: number;
 depth: number;
 weight: number;
 }
 
-interface Barcode {
+export interface Barcode {
 [key: 'EAN' | 'UPC']: string;
 }
 
 
-interface ExtendedData {
+export interface ExtendedData {
   notes?: string;
   tags?: string[];
   description?: string;

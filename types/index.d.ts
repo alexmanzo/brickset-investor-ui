@@ -44,7 +44,6 @@ export interface GetSetsParams {
   pageSize?: number;
   pageNumber?: number;
   extendedData?: number; // 1 or 0
-  userHash? : string;
 }
 
 interface Collections {

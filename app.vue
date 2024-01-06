@@ -1,8 +1,7 @@
 <template>
-  <div>
-    <h1>Brickset Investor UI</h1>
-    <p>The goal of this site is to create a UI focused on LEGO investing by leveraging the Brickset API.</p>
-  </div>
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
 </template>
 
 <script setup lang="ts">
