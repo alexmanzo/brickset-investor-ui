@@ -7,6 +7,10 @@
 </template>
 
 <script setup lang="ts">
+const { data, pending, error, refresh } = await useFetch('/api/sets', {
+  query: { query: 'Medieval blacksmith', userHash: '' }
+})
+console.log(data.value)
 const columns = [
   {
     key: 'id',

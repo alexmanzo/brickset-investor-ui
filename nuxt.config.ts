@@ -18,8 +18,15 @@ export default defineNuxtConfig({
   //   // Redirects legacy urls
   //   '/old-page': { redirect: '/new-page' }
   // }
-  typescript: {
-    typeCheck: true
+  runtimeConfig: {
+    // The private keys which are only available within server-side
+    bricksetApiKey: '',
+    bricksetApiUrl: 'https://brickset.com/api/v3.asmx',
+    bricksetUsername: 'manzoalex17@gmail.com',
+    bricksetPassword: ''
   },
-  modules: ['@nuxt/ui']
+  typescript: {
+    typeCheck: true,
+  },
+  modules: ['@nuxt/ui'],
 });
