@@ -23,49 +23,45 @@ export interface Set {
   instructionsCount?: number;
   additionalImageCount?: number;
   ageRange?: AgeRange;
-  dimensions?:Dimensions;
+  dimensions?: Dimensions;
   barcode?: Barcode;
   extendedData?: ExtendedData;
   lastUpdated?: DateTime;
-
 }
 
 export interface SetImage {
-thumbnailURL: string;
-imageURL: string;
+  thumbnailURL: string;
+  imageURL: string;
 }
 
 export interface LegoCom {
-[key: LegoComCountry]: LegoComDetails;
+  US?: LegoComDetails;
+  UK?: LegoComDetails;
+  CA?: LegoComDetails;
+  DE?: LegoComDetails;
 }
 
-enum LegoComCountry {
-'UK' = 'UK',
-'US' = 'US',
-'CA' = 'CA',
-'DE' = 'DE',
-}
 export interface LegoComDetails {
-retailPrice: number;
-dateFirstAvavilable: string;
-dateLastAvailable: string;
+  retailPrice: number;
+  dateFirstAvailable: string;
+  dateLastAvailable: string;
 }
 
 export interface AgeRange {
-min: number;
+  min: number;
 }
 
 export interface Dimensions {
-height: number;
-width: number;
-depth: number;
-weight: number;
+  height: number;
+  width: number;
+  depth: number;
+  weight: number;
 }
 
 export interface Barcode {
-[key: 'EAN' | 'UPC']: string;
+  UPC?: string;
+  EAN?: string;
 }
-
 
 export interface ExtendedData {
   notes?: string;
