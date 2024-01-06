@@ -42,20 +42,20 @@ export interface LegoCom {
 }
 
 export interface LegoComDetails {
-  retailPrice: number;
-  dateFirstAvailable: string;
-  dateLastAvailable: string;
+  retailPrice?: number;
+  dateFirstAvailable?: string;
+  dateLastAvailable?: string;
 }
 
 export interface AgeRange {
-  min: number;
+  min?: number;
 }
 
 export interface Dimensions {
-  height: number;
-  width: number;
-  depth: number;
-  weight: number;
+  height?: number;
+  width?: number;
+  depth?: number;
+  weight?: number;
 }
 
 export interface Barcode {

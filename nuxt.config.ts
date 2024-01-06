@@ -28,13 +28,5 @@ export default defineNuxtConfig({
   typescript: {
     typeCheck: true,
   },
-  modules: [
-    '@nuxt/ui',
-    [
-      '@pinia/nuxt',
-      {
-        autoImports: ['defineStore'],
-      },
-    ],
-  ],
+  modules: ['@nuxt/ui', '@pinia/nuxt', 'dayjs-nuxt'],
 });

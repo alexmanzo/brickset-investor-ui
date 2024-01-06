@@ -8,7 +8,7 @@ export const useLegoStore = defineStore('legoStore', () => {
 
   async function getThemes() {
     const themeReponse: ThemeResponse = await $fetch('/api/themes');
-    themes.value = themeReponse.themes;
+    themes.value = themeReponse.themes.filter((theme) => theme.theme !== '{Unknown}' && theme.setCount > 0);
   }
 
   return { themes, getThemes };
