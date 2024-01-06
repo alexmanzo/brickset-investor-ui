@@ -21,6 +21,7 @@
   "dependencies": {
     "@nuxt/ui": "^2.11.1",
     "gridjs": "^6.0.6",
+    "maska": "^2.1.10",
     "pinia": "^2.1.7"
   }
 }

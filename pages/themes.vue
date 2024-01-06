@@ -2,7 +2,7 @@
   <div class="flex gap-2">
     <USelectMenu
       v-model="selectedTheme"
-      :options="options"
+      :options="themeOptions"
       placeholder="Choose your theme(s)"
       searchable
       searchable-placeholder="Search by theme name"
@@ -13,11 +13,26 @@
       :loading="loading"
     >
     </USelectMenu>
-    <UButton @click="executeSearch" :loading="loading">Get Sets</UButton>
+    <USelectMenu
+      v-if="subthemeOptions.length > 0"
+      v-model="selectedSubtheme"
+      :options="subthemeOptions"
+      placeholder="Select a subtheme"
+      searchable
+      searchable-placeholder="Search by subtheme"
+      option-attribute="subtheme"
+      by="subtheme"
+      :search-attributes="['subtheme']"
+      class="w-1/4"
+      :loading="loading"
+    >
+    </USelectMenu>
   </div>
   <UTable :rows="rows" :columns="columns" :loading="loading" class="mt-3">
     <template #currentValue-data="{ row }">
-      <UInput v-model="row.currentValue" type="number" />
+      <UInput v-model="row.currentValue" type="number">
+        <template #leading> $ </template>
+      </UInput>
     </template>
     <template #roi-data="{ row }">
       {{ roi(row) }}
@@ -38,7 +53,7 @@ import { useLegoStore } from '@/stores/lego';
 import { useUserStore } from '@/stores/user';
 import { useDayjs } from '#dayjs';
 import type { Set } from '~/types/set';
-import type { Theme } from '~/types/theme';
+import type { Subtheme, SubthemeResponse, Theme } from '~/types/theme';
 import type { GetSetsResponse } from '~/types';
 
 const loading = ref(false);
@@ -46,14 +61,34 @@ const lego = useLegoStore();
 const user = useUserStore();
 const dayjs = useDayjs();
 const sets: Ref<Set[]> = ref([]);
-// const columns = ref([]);
 const selectedTheme: Ref<Theme | undefined> = ref(undefined);
-const options = ref(lego.themes);
+const selectedSubtheme: Ref<Subtheme | undefined> = ref(undefined);
+const themeOptions: Ref<Theme[]> = ref(lego.themes);
+const subthemeOptions: Ref<Subtheme[]> = ref([]);
+
+watch(selectedTheme, async (newTheme, oldTheme) => {
+  if (newTheme?.theme !== oldTheme?.theme) {
+    if (newTheme?.subthemeCount && newTheme?.subthemeCount > 0) {
+      const subthemesResponse: SubthemeResponse = await $fetch('/api/subthemes', {
+        query: { theme: selectedTheme.value?.theme },
+      });
+      subthemeOptions.value = subthemesResponse.subthemes.filter(
+        (subtheme) => subtheme.setCount > 0 && subtheme.subtheme !== '{None}'
+      );
+    }
+    await executeSearch();
+  }
+});
+
+watch(selectedSubtheme, async (newSubtheme, oldSubtheme) => {
+  if (newSubtheme?.subtheme !== oldSubtheme?.subtheme) {
+    await executeSearch();
+  }
+});
 
 const columns = [
   { label: 'Set Number', key: 'number', sortable: true },
   { label: 'Name', key: 'name', sortable: true },
-  { label: 'Theme', key: 'theme', sortable: true },
   { label: 'MSRP', key: 'MSRP', sortable: true },
   { label: 'Years On Market', key: 'yearsOnMarket', sortable: true },
   { label: 'Time retired', key: 'yearsRetired', sortable: true },
@@ -89,7 +124,7 @@ function avgAnnualRoi(row: any) {
 async function executeSearch() {
   loading.value = true;
   const setsResponse: GetSetsResponse = await $fetch('/api/sets', {
-    query: { theme: selectedTheme.value?.theme, pageSize: 100, userHash: user.userHash },
+    query: { theme: selectedTheme.value?.theme, subtheme: selectedSubtheme.value?.subtheme, pageSize: 100, orderBy: 'UserRating', userHash: user.userHash },
   });
   sets.value = setsResponse.sets.filter((set) => {
     return set.LEGOCom?.US?.retailPrice && !!set.released;
@@ -99,7 +134,9 @@ async function executeSearch() {
     const dateFirstAvailable = dayjs(`${set.LEGOCom?.US?.dateFirstAvailable}`);
     const dateLastAvailable = dayjs(`${set.LEGOCom?.US?.dateLastAvailable}`);
     const yearsOnMarket =
-      dateFirstAvailable && dateLastAvailable ? dateLastAvailable.from(dateFirstAvailable, true) : dayjs(set.year).fromNow(true);
+      dateFirstAvailable && dateLastAvailable
+        ? dateLastAvailable.from(dateFirstAvailable, true)
+        : dayjs(set.year).fromNow(true);
     const yearsRetired = dateFirstAvailable && dateLastAvailable ? dateLastAvailable.fromNow(true) : 'N/A';
     return {
       number: `${set.number}-${set.numberVariant}`,

@@ -1,15 +1,21 @@
 export interface ThemeResponse {
-    themes: Theme[];
-    matches: number;
-    status: string;
+  themes: Theme[];
+  matches: number;
+  status: string;
+}
+
+export interface SubthemeResponse {
+  subthemes: Subtheme[];
+  matches: number;
+  status: string;
 }
 
 export interface Subtheme {
-    theme: string;
-    subtheme: string;
-    setCount: number;
-    yearFrom: number;
-    yearTo: number;
+  theme: string;
+  subtheme: string;
+  setCount: number;
+  yearFrom: number;
+  yearTo: number;
 }
 
 export interface Theme {
