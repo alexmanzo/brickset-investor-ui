@@ -22,7 +22,7 @@ export default defineNuxtConfig({
     // The private keys which are only available within server-side
     bricksetApiKey: '',
     bricksetApiUrl: 'https://brickset.com/api/v3.asmx',
-    bricksetUsername: 'manzoalex17@gmail.com',
+    bricksetUsername: '',
     bricksetPassword: '',
   },
   typescript: {
