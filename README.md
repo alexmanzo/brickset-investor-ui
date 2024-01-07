@@ -1,3 +1,12 @@
+# Brickset Investor UI
+This is a WIP personal project. If you want to pull yourself, you'll need a Brickset account and API key. Create an `.env` file with the following values.
+```
+NUXT_BRICKSET_API_KEY=
+NUXT_BRICKSET_USERNAME=
+NUXT_BRICKSET_PASSWORD=
+```
+Happy hacking!
+
 # Nuxt 3 Minimal Starter
 
 Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
