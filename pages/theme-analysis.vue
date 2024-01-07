@@ -33,10 +33,10 @@
       </UInput>
     </template>
     <template #roi-data="{ row }">
-      <RoiCell :row="row" />
+      {{ roi(row) }}
     </template>
     <template #avgAnnualRoi-data="{ row }">
-      <AnnualRoiCell :row="row" />
+      {{ avgAnnualRoi(row) }}
     </template>
     <template #number-data="{ row }">
       <ULink :to="`https://brickset.com/sets/${row.number}`" target="_blank" rel="noopener noreferrer">{{
@@ -61,20 +61,7 @@ const selectedSubtheme: Ref<Subtheme | undefined> = ref(undefined);
 const themeOptions: Ref<Theme[]> = ref(lego.themes);
 const subthemeOptions: Ref<Subtheme[]> = ref([]);
 const sets: Ref<Set[]> = ref([]);
-const rows = computed((): ThemeAnalysisTableRow[] => {
-  return sets.value.map((set) => {
-    return {
-      number: `${set.number}-${set.numberVariant}`,
-      name: set.name,
-      msrp: getRetailPrice(set),
-      shelfLife: getShelfLife(set),
-      yearsRetired: getYearsRetired(set) ?? 'N/A',
-      currentValue: getRetailPrice(set),
-      roi: '',
-      avgAnnualRoi: '',
-    };
-  });
-});
+const rows: Ref<ThemeAnalysisTableRow[]> = ref([]);
 
 const columns = [
   { label: 'Set Number', key: 'number', sortable: true },
@@ -124,6 +111,52 @@ async function executeSearch() {
     return !!set.LEGOCom?.US?.retailPrice && !!set.released;
   });
 
+  rows.value = sets.value.map((set) => {
+    return {
+      number: `${set.number}-${set.numberVariant}`,
+      name: set.name,
+      msrp: getRetailPrice(set),
+      shelfLife: getShelfLife(set),
+      yearsRetired: getYearsRetired(set) ?? 'N/A',
+      currentValue: getRetailPrice(set),
+      roi: '',
+      avgAnnualRoi: '',
+    };
+  });
+
   loading.value = false;
+}
+
+function calclulateRoi(row: ThemeAnalysisTableRow): number {
+  const fees = row.currentValue * 0.15;
+  const profit = row.currentValue - (row.msrp + fees);
+
+  return profit / row.msrp;
+}
+
+function roi(row: ThemeAnalysisTableRow): string {
+  const roi = calclulateRoi(row);
+  const percentageString = roi.toLocaleString(undefined, {
+    style: 'percent',
+    minimumFractionDigits: 2,
+  });
+
+  return percentageString;
+}
+
+function avgAnnualRoi(row: ThemeAnalysisTableRow): string {
+  const roi = calclulateRoi(row);
+  const yearsRetired = row.yearsRetired;
+
+  if (yearsRetired && typeof yearsRetired === 'number') {
+    const percentageString = (roi / yearsRetired).toLocaleString(undefined, {
+      style: 'percent',
+      minimumFractionDigits: 2,
+    });
+
+    return percentageString;
+  }
+
+  return 'N/A';
 }
 </script>
