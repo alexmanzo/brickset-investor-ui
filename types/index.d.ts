@@ -1,5 +1,6 @@
 interface GetSetsResponse {
   status: string;
+  message: string;
   matches: number;
   sets: Set[];
 }

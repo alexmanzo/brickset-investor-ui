@@ -2,7 +2,8 @@
   <div>
     <h1 class="font-semibold text-2xl">Theme analysis</h1>
     <p class="w-3/4 mb-4">
-      Research the current market price of a set. Add that price and the ROI / annual average ROI will be automatically calculated. The ROI assumes 15% in selling fees/costs.
+      Research the current market price of a set. Add that price and the ROI / annual average ROI will be automatically
+      calculated. The ROI assumes 15% in selling fees/costs.
     </p>
   </div>
   <UDivider class="my-6" />
@@ -44,56 +45,69 @@
       </USelectMenu>
     </UFormGroup>
   </div>
-  <UTable :rows="rows" :columns="columns" :loading="loading" class="mt-3">
-    <template #currentValue-data="{ row }">
-      <UInput v-model="row.currentValue" type="number">
-        <template #leading>$</template>
-      </UInput>
-    </template>
-    <template #roi-data="{ row }">
-      {{
-        roi(row).toLocaleString(undefined, {
-          style: 'percent',
-          minimumFractionDigits: 2,
-        })
-      }}
-    </template>
-    <template #avgAnnualRoi-data="{ row }">
-      {{
-        avgAnnualRoi(row).toLocaleString(undefined, {
-          style: 'percent',
-          minimumFractionDigits: 2,
-        })
-      }}
-    </template>
-    <template #number-data="{ row }">
-      <ULink
-        :to="`https://brickset.com/sets/${row.number}`"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-purple-900 hover:text-purple-600 font-semibold transition-colors duration-100"
-        >{{ row.number }}</ULink
-      >
-    </template>
-  </UTable>
+  <div v-if="rows.length > 0">
+    <UTable :rows="rows" :columns="columns" :loading="loading" class="mt-3">
+      <template #currentValue-data="{ row }">
+        <UInput v-model="row.currentValue" type="number">
+          <template #leading>$</template>
+        </UInput>
+      </template>
+      <template #roi-data="{ row }">
+        {{
+          roi(row).toLocaleString(undefined, {
+            style: 'percent',
+            minimumFractionDigits: 2,
+          })
+        }}
+      </template>
+      <template #avgAnnualRoi-data="{ row }">
+        {{
+          avgAnnualRoi(row).toLocaleString(undefined, {
+            style: 'percent',
+            minimumFractionDigits: 2,
+          })
+        }}
+      </template>
+      <template #number-data="{ row }">
+        <ULink
+          :to="`https://brickset.com/sets/${row.number}`"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-purple-900 hover:text-purple-600 font-semibold transition-colors duration-100"
+          >{{ row.number }}</ULink
+        >
+      </template>
+    </UTable>
+    <div class="flex justify-end px-3 py-3.5 border-t border-gray-200 dark:border-gray-700">
+      <UPagination
+        v-model="currentPage"
+        :page-count="totalPages"
+        :total="totalMatches"
+        @update:modelValue="updatePage"
+      />
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { useLegoStore } from '@/stores/lego';
-import { useUserStore } from '@/stores/user';
+import { useSetQuery } from '@/composables/useSetQuery';
 import type { Set, ThemeAnalysisTableRow } from '~/types/set';
 import type { Subtheme, SubthemeResponse, Theme } from '~/types/theme';
-import type { GetSetsResponse } from '~/types';
+import type { GetSetsParams, GetSetsResponse } from '~/types';
 
-const loading = ref(false);
 const lego = useLegoStore();
-const user = useUserStore();
+const { sets, loading, totalMatches, currentPage, totalPages, executeQuery, setCurrentPage } = useSetQuery();
 const selectedTheme: Ref<Theme | undefined> = ref(undefined);
 const selectedSubtheme: Ref<Subtheme | undefined> = ref(undefined);
 const themeOptions = computed((): Theme[] => lego.themes);
 const subthemeOptions: Ref<Subtheme[]> = ref([]);
-const sets: Ref<Set[]> = ref([]);
 const rows: Ref<ThemeAnalysisTableRow[]> = ref([]);
+const filteredSets = computed((): Set[] => {
+  return sets.value.filter((set: Set) => {
+    return !!set.LEGOCom?.US?.retailPrice && !!set.released;
+  });
+});
 
 const columns = [
   { label: 'Set Number', key: 'number', sortable: true },
@@ -132,24 +146,20 @@ watch(selectedSubtheme, async (newSubtheme, oldSubtheme) => {
   }
 });
 
+async function updatePage(page: number) {
+  setCurrentPage(page);
+  await executeSearch();
+}
+
 async function executeSearch() {
-  loading.value = true;
-
-  const setsResponse: GetSetsResponse = await $fetch('/api/sets', {
-    query: {
-      theme: selectedTheme.value?.theme,
-      subtheme: selectedSubtheme.value?.subtheme,
-      pageSize: 100,
-      orderBy: 'UserRating',
-      userHash: user.userHash,
-    },
+  await executeQuery({
+    theme: selectedTheme.value?.theme,
+    subtheme: selectedSubtheme.value?.subtheme,
+    pageNumber: currentPage.value,
+    orderBy: 'YearFrom',
   });
-
-  sets.value = setsResponse.sets.filter((set) => {
-    return !!set.LEGOCom?.US?.retailPrice && !!set.released;
-  });
-
-  rows.value = sets.value.map((set) => {
+  console.log(sets.value)
+  rows.value = filteredSets.value.map((set: Set) => {
     return {
       number: `${set.number}-${set.numberVariant}`,
       name: set.name,
@@ -162,8 +172,6 @@ async function executeSearch() {
       avgAnnualRoi: '',
     };
   });
-
-  loading.value = false;
 }
 
 function calclulateRoi(row: ThemeAnalysisTableRow): number {
