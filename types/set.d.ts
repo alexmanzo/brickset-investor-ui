@@ -1,9 +1,12 @@
 export interface Set {
+shelfLife: number;
+yearsRetired: number;
+currentValue: number;
   setID?: number;
-  number?: string;
-  numberVariant?: number;
-  name?: string;
-  year?: number;
+  number: string;
+  numberVariant: number;
+  name: string;
+  year: number;
   theme?: string;
   themeGroup?: string;
   subtheme?: string;
@@ -67,4 +70,15 @@ export interface ExtendedData {
   notes?: string;
   tags?: string[];
   description?: string;
+}
+
+export interface ThemeAnalysisTableRow {
+  number: string;
+  name: string;
+  msrp: number;
+  shelfLife: number;
+  yearsRetired: number | string;
+  currentValue: number;
+  roi: string;
+  avgAnnualRoi: string;
 }

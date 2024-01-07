@@ -9,7 +9,6 @@
       option-attribute="theme"
       by="theme"
       :search-attributes="['theme']"
-      class="w-1/4"
       :loading="loading"
     >
     </USelectMenu>
@@ -23,7 +22,6 @@
       option-attribute="subtheme"
       by="subtheme"
       :search-attributes="['subtheme']"
-      class="w-1/4"
       :loading="loading"
     >
     </USelectMenu>
@@ -31,14 +29,14 @@
   <UTable :rows="rows" :columns="columns" :loading="loading" class="mt-3">
     <template #currentValue-data="{ row }">
       <UInput v-model="row.currentValue" type="number">
-        <template #leading> $ </template>
+        <template #leading>$</template>
       </UInput>
     </template>
     <template #roi-data="{ row }">
-      {{ roi(row) }}
+      <RoiCell :row="row" />
     </template>
     <template #avgAnnualRoi-data="{ row }">
-      {{ avgAnnualRoi(row) }}
+      <AnnualRoiCell :row="row" />
     </template>
     <template #number-data="{ row }">
       <ULink :to="`https://brickset.com/sets/${row.number}`" target="_blank" rel="noopener noreferrer">{{
@@ -51,20 +49,43 @@
 <script setup lang="ts">
 import { useLegoStore } from '@/stores/lego';
 import { useUserStore } from '@/stores/user';
-import { useDayjs } from '#dayjs';
-import type { Set } from '~/types/set';
+import type { Set, ThemeAnalysisTableRow } from '~/types/set';
 import type { Subtheme, SubthemeResponse, Theme } from '~/types/theme';
 import type { GetSetsResponse } from '~/types';
 
 const loading = ref(false);
 const lego = useLegoStore();
 const user = useUserStore();
-const dayjs = useDayjs();
-const sets: Ref<Set[]> = ref([]);
 const selectedTheme: Ref<Theme | undefined> = ref(undefined);
 const selectedSubtheme: Ref<Subtheme | undefined> = ref(undefined);
 const themeOptions: Ref<Theme[]> = ref(lego.themes);
 const subthemeOptions: Ref<Subtheme[]> = ref([]);
+const sets: Ref<Set[]> = ref([]);
+const rows = computed((): ThemeAnalysisTableRow[] => {
+  return sets.value.map((set) => {
+    return {
+      number: `${set.number}-${set.numberVariant}`,
+      name: set.name,
+      msrp: getRetailPrice(set),
+      shelfLife: getShelfLife(set),
+      yearsRetired: getYearsRetired(set) ?? 'N/A',
+      currentValue: getRetailPrice(set),
+      roi: '',
+      avgAnnualRoi: '',
+    };
+  });
+});
+
+const columns = [
+  { label: 'Set Number', key: 'number', sortable: true },
+  { label: 'Name', key: 'name', sortable: true },
+  { label: 'MSRP', key: 'msrp', sortable: true },
+  { label: 'Shelf life', key: 'shelfLife', sortable: true },
+  { label: 'Years retired', key: 'yearsRetired', sortable: true },
+  { label: 'Current Value', key: 'currentValue', sortable: true },
+  { label: 'ROI', key: 'roi', sortable: true },
+  { label: 'Avg Annual ROI', key: 'avgAnnualRoi', sortable: true },
+];
 
 watch(selectedTheme, async (newTheme, oldTheme) => {
   if (newTheme?.theme !== oldTheme?.theme) {
@@ -86,72 +107,23 @@ watch(selectedSubtheme, async (newSubtheme, oldSubtheme) => {
   }
 });
 
-const columns = [
-  { label: 'Set Number', key: 'number', sortable: true },
-  { label: 'Name', key: 'name', sortable: true },
-  { label: 'MSRP', key: 'MSRP', sortable: true },
-  { label: 'Years On Market', key: 'yearsOnMarket', sortable: true },
-  { label: 'Time retired', key: 'yearsRetired', sortable: true },
-  { label: 'Current Value', key: 'currentValue', sortable: true },
-  { label: 'ROI', key: 'roi', sortable: true },
-  { label: 'Avg Annual ROI', key: 'avgAnnualRoi', sortable: true },
-];
-
-const rows: any = ref([]);
-
-function roi(row: any) {
-  const rowToUpdate = rows.value.find((r: any) => r.number === row.number);
-  rowToUpdate.roi = Number((row.currentValue - row.MSRP) / row.MSRP).toLocaleString(undefined, {
-    style: 'percent',
-    minimumFractionDigits: 2,
-  });
-
-  return row.roi;
-}
-
-function avgAnnualRoi(row: any) {
-  const rowToUpdate = rows.value.find((r: any) => r.number === row.number);
-  const roi = Number((row.currentValue - row.MSRP) / row.MSRP);
-  const yearsOnMarket = Number(row.dateLastAvailable.fromNow('yy').replace(' years', ''));
-
-  rowToUpdate.avgAnnualRoi = (roi / yearsOnMarket).toLocaleString(undefined, {
-    style: 'percent',
-    minimumFractionDigits: 2,
-  });
-  return row.avgAnnualRoi;
-}
-
 async function executeSearch() {
   loading.value = true;
+
   const setsResponse: GetSetsResponse = await $fetch('/api/sets', {
-    query: { theme: selectedTheme.value?.theme, subtheme: selectedSubtheme.value?.subtheme, pageSize: 100, orderBy: 'UserRating', userHash: user.userHash },
-  });
-  sets.value = setsResponse.sets.filter((set) => {
-    return set.LEGOCom?.US?.retailPrice && !!set.released;
+    query: {
+      theme: selectedTheme.value?.theme,
+      subtheme: selectedSubtheme.value?.subtheme,
+      pageSize: 100,
+      orderBy: 'UserRating',
+      userHash: user.userHash,
+    },
   });
 
-  rows.value = sets.value.map((set) => {
-    const dateFirstAvailable = dayjs(`${set.LEGOCom?.US?.dateFirstAvailable}`);
-    const dateLastAvailable = dayjs(`${set.LEGOCom?.US?.dateLastAvailable}`);
-    const yearsOnMarket =
-      dateFirstAvailable && dateLastAvailable
-        ? dateLastAvailable.from(dateFirstAvailable, true)
-        : dayjs(set.year).fromNow(true);
-    const yearsRetired = dateFirstAvailable && dateLastAvailable ? dateLastAvailable.fromNow(true) : 'N/A';
-    return {
-      number: `${set.number}-${set.numberVariant}`,
-      name: set.name,
-      theme: set.theme,
-      MSRP: set.LEGOCom?.US?.retailPrice ?? 'N/A',
-      dateFirstAvailable,
-      dateLastAvailable,
-      yearsOnMarket,
-      yearsRetired,
-      currentValue: 0.0,
-      roi: 0,
-      avgAnnualRoi: 0,
-    };
+  sets.value = setsResponse.sets.filter((set) => {
+    return !!set.LEGOCom?.US?.retailPrice && !!set.released;
   });
+
   loading.value = false;
 }
 </script>

@@ -28,5 +28,5 @@ export default defineNuxtConfig({
   typescript: {
     typeCheck: true,
   },
-  modules: ['@nuxt/ui', '@pinia/nuxt', 'dayjs-nuxt'],
+  modules: ['@nuxt/ui', '@pinia/nuxt'],
 });
