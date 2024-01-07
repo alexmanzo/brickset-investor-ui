@@ -77,7 +77,7 @@ export interface ThemeAnalysisTableRow {
   name: string;
   msrp: number;
   shelfLife: number;
-  yearsRetired: number | string;
+  yearsRetired: number;
   currentValue: number;
   roi: string;
   avgAnnualRoi: string;

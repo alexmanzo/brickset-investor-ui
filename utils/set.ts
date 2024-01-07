@@ -32,12 +32,14 @@ export function getRetirementYear(set: Set): number | undefined {
   return new Set(lastAvailableDates).values().next().value;
 }
 
-export function getYearsRetired(set: Set): number | undefined {
+export function getYearsRetired(set: Set): number {
   const retirementYear = getRetirementYear(set);
   if (retirementYear) {
     const now = new Date().getFullYear();
     return now - retirementYear;
   }
+
+  return 0;
 }
 
 export function getShelfLife(set: Set): number {

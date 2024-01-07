@@ -1,11 +1,11 @@
 <template>
   <UContainer>
-    <header>
-      <h1>Brickset Investor</h1>
-    </header>
-    <main>
+    <!-- <header class="py-7">
+      <h1 class="text-bold font-semibold text-3xl">Brickset Investor</h1>
+    </header> -->
+    <main class="py-12">
       <slot />
     </main>
-    <footer>Cool!</footer>
+    <footer></footer>
   </UContainer>
 </template>
