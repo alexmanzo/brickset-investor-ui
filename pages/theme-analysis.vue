@@ -45,7 +45,7 @@
       </USelectMenu>
     </UFormGroup>
   </div>
-  <div v-if="rows.length > 0">
+  <div v-if="sets.length > 0">
     <UTable :rows="rows" :columns="columns" :loading="loading" class="mt-3">
       <template #currentValue-data="{ row }">
         <UInput v-model="row.currentValue" type="number">
@@ -79,12 +79,7 @@
       </template>
     </UTable>
     <div class="flex justify-end px-3 py-3.5 border-t border-gray-200 dark:border-gray-700">
-      <UPagination
-        v-model="currentPage"
-        :page-count="totalPages"
-        :total="totalMatches"
-        @update:modelValue="updatePage"
-      />
+      <UPagination v-model="currentPage" :page-count="20" :total="totalMatches" @update:modelValue="updatePage" />
     </div>
   </div>
 </template>
@@ -126,6 +121,7 @@ if (!lego.themes.length) {
 }
 
 watch(selectedTheme, async (newTheme, oldTheme) => {
+  setCurrentPage(1);
   if (newTheme?.theme !== oldTheme?.theme) {
     selectedSubtheme.value = undefined;
     if (newTheme?.subthemeCount && newTheme?.subthemeCount > 0) {
@@ -141,6 +137,7 @@ watch(selectedTheme, async (newTheme, oldTheme) => {
 });
 
 watch(selectedSubtheme, async (newSubtheme, oldSubtheme) => {
+  setCurrentPage(1);
   if (newSubtheme?.subtheme !== oldSubtheme?.subtheme) {
     await executeSearch();
   }
@@ -156,9 +153,8 @@ async function executeSearch() {
     theme: selectedTheme.value?.theme,
     subtheme: selectedSubtheme.value?.subtheme,
     pageNumber: currentPage.value,
-    orderBy: 'YearFrom',
   });
-  console.log(sets.value)
+
   rows.value = filteredSets.value.map((set: Set) => {
     return {
       number: `${set.number}-${set.numberVariant}`,
