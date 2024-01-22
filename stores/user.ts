@@ -3,8 +3,8 @@ import { defineStore } from 'pinia';
 export const useUserStore = defineStore('userStore', () => {
   const userHash = ref('');
 
-  async function login() {
-    const loginRequest: { hash: string } = await $fetch('/api/login');
+  async function loginToBrickset() {
+    const loginRequest: { hash: string } = await $fetch('/api/brickset-login');
 
     userHash.value = loginRequest.hash;
   }
@@ -16,5 +16,5 @@ export const useUserStore = defineStore('userStore', () => {
     console.log(checkUserHash.hashStatus);
   }
 
-  return { userHash, login, checkHash };
+  return { userHash, checkHash, loginToBrickset };
 });

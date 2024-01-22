@@ -117,7 +117,7 @@ const columns = [
 ];
 
 if (!lego.themes.length) {
-  await callOnce(lego.getThemes);
+  await lego.getThemes();
 }
 
 watch(selectedTheme, async (newTheme, oldTheme) => {

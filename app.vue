@@ -11,10 +11,10 @@ const user = useUserStore();
 const lego = useLegoStore();
 
 if (!user.userHash) {
-  await callOnce(user.login);
+  await user.loginToBrickset();
 }
 
 if (!lego.themes.length) {
-  await callOnce(lego.getThemes);
+  await lego.getThemes();
 }
 </script>

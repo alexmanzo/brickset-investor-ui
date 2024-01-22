@@ -24,6 +24,10 @@ export default defineNuxtConfig({
     bricksetApiUrl: 'https://brickset.com/api/v3.asmx',
     bricksetUsername: '',
     bricksetPassword: '',
+    supabaseApiKey: '',
+    public: {
+      hcaptchaSiteKey: 'baf3230d-71a9-4306-a5c8-0a5c47e2dbc7',
+    }
   },
   typescript: {
     typeCheck: true,
