@@ -24,13 +24,17 @@ export default defineNuxtConfig({
     bricksetApiUrl: 'https://brickset.com/api/v3.asmx',
     bricksetUsername: '',
     bricksetPassword: '',
-    supabaseApiKey: '',
+    supabaseUrl: '',
+    supabaseKey: '',
     public: {
-      hcaptchaSiteKey: 'baf3230d-71a9-4306-a5c8-0a5c47e2dbc7',
+      hcaptchaSiteKey: process.env.HCAPTCHA_SITE_KEY,
     }
   },
   typescript: {
     typeCheck: true,
   },
-  modules: ['@nuxt/ui', '@pinia/nuxt'],
+  supabase: {
+    redirect: false,
+  },
+  modules: ['@nuxt/ui', '@pinia/nuxt', '@nuxtjs/supabase'],
 });

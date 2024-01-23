@@ -1,61 +1,53 @@
 <template>
-  <h1>Login or Register</h1>
+  <h1>Login</h1>
 
-  <UForm :schema="schema" :state="state" class="space-y-4" @submit="submitForm">
-    <UFormGroup label="Email" name="email" required description="We'll send a magic link to log you in.">
+  <UForm ref="form" :schema="schema" :state="state" class="space-y-4" @submit="submitForm">
+    <UFormGroup label="Email" name="email" required>
       <UInput v-model="state.email" />
     </UFormGroup>
-    <UFormGroup label="Captcha validation" name="captcha">
-      <template #label>
-        <span class="hidden">Captcha validation</span>
-      </template>
-      <UInput v-model="state.captchaToken" class="hidden" />
-      <vue-hcaptcha
-        sitekey="baf3230d-71a9-4306-a5c8-0a5c47e2dbc7"
-        :theme="colorMode.value"
-        @verify="onVerify"
-        @error="onError"
-      />
+    <UFormGroup label="Password" name="password" required>
+      <UInput v-model="state.password" type="password" />
     </UFormGroup>
     <UButton type="submit"> Submit </UButton>
   </UForm>
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from '@/stores/user';
-import VueHcaptcha from '@hcaptcha/vue3-hcaptcha';
 import type { FormSubmitEvent } from '#ui/types';
-import { object, string, type InferType } from 'yup';
+import { z } from 'zod';
 
-const colorMode = useColorMode();
+const auth = useAuthStore();
+const supabase = useSupabaseClient();
+const router = useRouter();
 
-const schema = object({
-  email: string().email('Invalid email').required('Required'),
-  captchaToken: string().required('Required'),
+const form = ref();
+const schema = z.object({
+  email: z.string().email(),
+  password: z.string(),
 });
-
-type Schema = InferType<typeof schema>;
-
+type Schema = z.output<typeof schema>;
 const state = reactive({
   email: '',
-  captchaToken: '',
+  password: '',
 });
 
-const user = useUserStore();
-
 async function submitForm(event: FormSubmitEvent<Schema>) {
-  console.log(event.data)
-  // await user.login({ email: event.data.email, captchaToken: event.data.captchaToken });
-}
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: event.data.email,
+    password: event.data.password,
+  });
 
-const captchaError = ref('');
+  if (error) {
+    form.value.setErrors([
+      {path: 'email', message: error.message},
+      {path: 'password', message: error.message},
+    ])
+  }
 
-function onVerify(tokenStr: string) {
-  state.captchaToken = tokenStr;
-}
+  const { session, user } = data;
+  auth.setAuthData(session);
+  auth.setUserData(user);
 
-function onError(err: string) {
-  state.captchaToken = '';
-  captchaError.value = err;
+  router.push('/dashboard');
 }
 </script>

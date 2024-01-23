@@ -91,6 +91,10 @@ import type { Set, ThemeAnalysisTableRow } from '~/types/set';
 import type { Subtheme, SubthemeResponse, Theme } from '~/types/theme';
 import type { GetSetsParams, GetSetsResponse } from '~/types';
 
+definePageMeta({
+  middleware: 'auth',
+});
+
 const lego = useLegoStore();
 const { sets, loading, totalMatches, currentPage, totalPages, executeQuery, setCurrentPage } = useSetQuery();
 const selectedTheme: Ref<Theme | undefined> = ref(undefined);
