@@ -1,7 +1,7 @@
 export interface Set {
-shelfLife: number;
-yearsRetired: number;
-currentValue: number;
+  shelfLife: number;
+  yearsRetired: number;
+  currentValue: number;
   setID?: number;
   number: string;
   numberVariant: number;

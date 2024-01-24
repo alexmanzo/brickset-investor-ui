@@ -34,5 +34,6 @@ export const useAuthStore = defineStore('authStore', () => {
     setAuthData,
     setUserData,
     reset,
+    maxAge
   };
 });

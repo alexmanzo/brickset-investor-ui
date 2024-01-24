@@ -48,6 +48,6 @@ async function submitForm(event: FormSubmitEvent<Schema>) {
   auth.setAuthData(session);
   auth.setUserData(user);
 
-  router.push('/dashboard');
+  // router.push('/dashboard');
 }
 </script>

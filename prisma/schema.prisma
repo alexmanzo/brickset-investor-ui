@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["multiSchema"]
@@ -13,9 +10,65 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model User {
-  id               Int             @id @default(autoincrement())
-  email            String          @unique
-  firstName        String
-  lastName         String
+model InventoryItem {
+  id            Int      @id @default(autoincrement())
+  setNumber     Int      @unique
+  quantity      Int
+  pricePerUnit  Float
+  datePurchased DateTime
+  retailer      Retailer
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  set           Set      @relation(fields: [setNumber], references: [setNumber])
+}
+
+model Set {
+  setNumber     Int            @id
+  name          String
+  year          Int
+  shelfLife     Int
+  yearsRetired  Int
+  currentValue  Float
+  retailPrice   Float
+  subthemeName  String
+  themeName     String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  inventoryItem InventoryItem?
+  Subtheme      Subtheme       @relation(fields: [subthemeName], references: [subtheme])
+  Theme         Theme          @relation(fields: [themeName], references: [theme])
+}
+
+model Theme {
+  id            Int        @id @default(autoincrement())
+  theme         String     @unique
+  setCount      Int
+  subthemeCount Int
+  yearFrom      Int
+  yearTo        Int
+  createdAt     DateTime?  @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime?  @default(now()) @updatedAt @db.Timestamptz(6)
+  Set           Set[]
+  subthemes     Subtheme[]
+}
+
+model Subtheme {
+  id        Int    @id @default(autoincrement())
+  subtheme  String @unique
+  setCount  Int
+  yearFrom  Int
+  yearTo    Int
+  themeName String
+  Set       Set[]
+  theme     Theme  @relation(fields: [themeName], references: [theme])
+}
+
+enum Retailer {
+  AMAZON
+  LEGO
+  WALMART
+  TARGET
+  BEST_BUY
+  BARNS_AND_NOBLE
+  OTHER
 }

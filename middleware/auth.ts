@@ -17,6 +17,8 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
       if (!session?.access_token || error) {
         return navigateTo('/login');
       }
+
+      return navigateTo(to.path)
     }
   }
 });
